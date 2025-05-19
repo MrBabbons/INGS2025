@@ -1,0 +1,10 @@
+FROM mysql:latest
+
+ENV MYSQL_ROOT_PASSWORD=secret
+ENV MYSQL_DATABASE=harmonization
+ENV MYSQL_USER=admin
+ENV MYSQL_PASSWORD=secret
+
+COPY ./init.sql /docker-entrypoint-initdb.d/
+
+EXPOSE 3306
