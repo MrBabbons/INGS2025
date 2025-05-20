@@ -1,7 +1,7 @@
 FROM mysql:latest
 
 ENV MYSQL_ROOT_PASSWORD=secret
-ENV MYSQL_DATABASE=harmonization
+ENV MYSQL_DATABASE=armonizzazione_percorsi
 ENV MYSQL_USER=admin
 ENV MYSQL_PASSWORD=secret
 

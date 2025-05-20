@@ -1,31 +1,53 @@
 version: '3.8'
 
 services:
+  # Servizio MySQL 
   db:
-    build: ./db
+    build:
+      context: ./db  
     container_name: mysql_container
     ports:
-      - "3306:3306"
+      - "3306:3306"  
     environment:
       MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: harmonization
+      MYSQL_DATABASE: armonizzazione_percorsi
       MYSQL_USER: admin
       MYSQL_PASSWORD: secret
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql  # Volume persistente per i dati del database
+    healthcheck:  # Controlla se MySQL è pronto
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  backend:
-    build: ./backend
-    container_name: backend_container
-    depends_on:
-      - db
-    ports:
-      - "5000:5000"
-    environment:
-      DB_HOST: db
-      DB_USER: admin
-      DB_PASSWORD: secret
-      DB_NAME: harmonization
+  # BACKEND: Servizio dell'applicazione lato server 
+  #backend:
+    #build:
+      #context: ./backend  
+    #container_name: backend_container
+    #depends_on:
+      #db:
+        #condition: service_healthy  # Aspetta che il DB sia attivo e pronto prima di partire
+    #ports:
+      #- "5000:5000"  # (Flask default)
+    #environment:
+      #DB_HOST: db 
+      #DB_USER: admin
+      #DB_PASSWORD: secret
+      #DB_NAME: armonizzazione_percorsi
+    #restart: unless-stopped  # Riavvia il container se si interrompe in modo anomalo
+
+  # FRONTEND: Servizio dell'applicazione lato client
+  #frontend:
+    #build:
+      #context: ./frontend  
+    #container_name: frontend_container
+    #ports:
+      #- "3000:3000" # (React default)
+    #depends_on:
+      #- backend  # Aspetta che il backend sia avviato prima
+    #restart: unless-stopped
 
 volumes:
-  db_data:
+  db_data:  # Volume per persistenza dei dati MySQL
