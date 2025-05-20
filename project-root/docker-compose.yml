@@ -15,6 +15,7 @@ services:
       MYSQL_PASSWORD: secret
     volumes:
       - db_data:/var/lib/mysql  # Volume persistente per i dati del database
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Per esecuzione automatica
     healthcheck:  # Controlla se MySQL è pronto
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
