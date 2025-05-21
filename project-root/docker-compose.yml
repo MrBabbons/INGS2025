@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  # Servizio MySQL 
+  # Servizio MySQL (Database)
   db:
     build:
       context: ./db  
@@ -14,41 +12,25 @@ services:
       MYSQL_USER: admin
       MYSQL_PASSWORD: secret
     volumes:
-      - db_data:/var/lib/mysql  # Volume persistente per i dati del database
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # Per esecuzione automatica
-    healthcheck:  # Controlla se MySQL è pronto
+      - db_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:  
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: always
 
-  # BACKEND: Servizio dell'applicazione lato server 
-  #backend:
-    #build:
-      #context: ./backend  
-    #container_name: backend_container
-    #depends_on:
-      #db:
-        #condition: service_healthy  # Aspetta che il DB sia attivo e pronto prima di partire
-    #ports:
-      #- "5000:5000"  # (Flask default)
-    #environment:
-      #DB_HOST: db 
-      #DB_USER: admin
-      #DB_PASSWORD: secret
-      #DB_NAME: armonizzazione_percorsi
-    #restart: unless-stopped  # Riavvia il container se si interrompe in modo anomalo
-
-  # FRONTEND: Servizio dell'applicazione lato client
-  #frontend:
-    #build:
-      #context: ./frontend  
-    #container_name: frontend_container
-    #ports:
-      #- "3000:3000" # (React default)
-    #depends_on:
-      #- backend  # Aspetta che il backend sia avviato prima
-    #restart: unless-stopped
+  # FRONTEND: React con Bootstrap
+  frontend:
+    build:
+      context: ./frontend  
+    container_name: frontend_container
+    ports:
+      - "5500:3000"
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
 
 volumes:
-  db_data:  # Volume per persistenza dei dati MySQL
+  db_data:
