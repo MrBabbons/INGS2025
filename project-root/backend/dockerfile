@@ -1,6 +1,7 @@
-FROM python:3.10
-WORKDIR /app
-COPY . /app
-RUN pip install --no-cache-dir -r requirements.txt
-EXPOSE 5000
-CMD ["python", "app.py"]
+FROM node:18
+WORKDIR /backend
+COPY package.json ./
+RUN apt-get update && apt-get install -y default-mysql-client
+COPY . .
+EXPOSE 3001
+CMD ["node", "server.js"]
