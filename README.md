@@ -1,2 +1,4 @@
 # INGS2025
-Si vuole sviluppare una applicazione per l'armonizzazione dei percorsi formativi.
+Si vuole sviluppare una applicazione per l’armonizzazione dei percorsi formativi. Nello specifico, si vuole ridurre il più possibile la sovrapposizione di argomenti tra insegnamenti dello stesso corso di laurea ma garantire allo stesso tempo un insieme minimo di argomenti trattati all’interno del corso di laurea. Un incaricato amministrativo carica gli insegnamenti divisi per corsi di laurea. Il docente referente dell’insegnamento carica la lista degli argomenti scegliendoli da una lista di argomenti precedentemente immessi nel sistema.
+
+È richiesta una implementazione minimale del progetto che contenga almeno lo schema MVP e le feature essenziali del progetto.

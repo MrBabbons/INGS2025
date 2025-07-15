@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   db:
@@ -42,13 +42,20 @@ services:
     build:
       context: ./frontend
       args:
-        REACT_APP_SERVER_URL: ${SERVER_URL}
+        - REACT_APP_SERVER_URL=${REACT_APP_SERVER_URL}
+    env_file:
+      - ./.env
+    environment:
+      - REACT_APP_SERVER_URL=${REACT_APP_SERVER_URL}
     container_name: frontend_container
     ports:
       - "3000:3000"
-    restart: unless-stopped
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
     stdin_open: true
     tty: true
+
 
   nginx:
     image: nginx:latest
