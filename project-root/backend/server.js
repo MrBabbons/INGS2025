@@ -1,79 +1,46 @@
 require("dotenv").config({ path: "../.env" });
 const express = require("express");
 const mysql = require("mysql2/promise");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const cors = require("cors");
+
+// Middleware JWT - verifica ruoli
+const { verifyToken } = require("./middleware/auth");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 const dbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
+  host:     process.env.DB_HOST,
+  user:     process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 };
 
-async function connectDB() {
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-    console.log("✅ Connessione al database riuscita!");
-    return connection;
-  } catch (err) {
-    console.error("❌ Errore di connessione al database:", err);
-    process.exit(1);
-  }
-}
-
 async function startServer() {
-  const db = await connectDB();
+  // Connessione al database
+  const db = await mysql.createConnection(dbConfig);
+  console.log("✅ Connessione al database riuscita!");
 
-  // Registrazione Utente
-  app.post("/register", async (req, res) => {
-    const { nome, email, password, ruolo } = req.body;
+  // Rotte pubbliche (register, login)
+  app.use("/api", require("./routes/auth")(db));
 
-    try {
-      const [results] = await db.query("SELECT * FROM Utente WHERE email = ?", [email]);
-      if (results.length > 0) return res.status(400).json({ error: "L'email è già registrata." });
+  // Tutte le rotte successive richiedono JWT
+  app.use("/api", verifyToken);
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await db.query(
-        "INSERT INTO Utente (nome, email, password_hash, ruolo) VALUES (?, ?, ?, ?)",
-        [nome, email, hashedPassword, ruolo]
-      );
+  // Rotte Amministratore
+  app.use("/api/admin", require("./routes/admin")(db));
 
-      res.status(201).json({ message: "Registrazione avvenuta con successo!" });
-    } catch (err) {
-      console.error("Errore nella registrazione:", err);
-      res.status(500).json({ error: "Errore durante la registrazione." });
-    }
-  });
+  // Rotte Docente
+  app.use("/api/docente", require("./routes/docente")(db));
 
-  // Login Utente
-  app.post("/login", async (req, res) => {
-    const { email, password } = req.body;
+  // Rotte per associazione argomenti - insegnamenti
+  app.use("/api", require("./routes/argomentiLink")(db));
 
-    try {
-      const [results] = await db.query("SELECT * FROM Utente WHERE email = ?", [email]);
+  // Rotte Report (sovrapposizioni & copertura)
+  app.use("/api/report", require("./routes/report")(db));
 
-      if (!results || results.length === 0) return res.status(400).json({ error: "Email non trovata." });
-
-      const user = results[0];
-      const passwordMatch = await bcrypt.compare(password, user.password_hash);
-
-      if (!passwordMatch) return res.status(400).json({ error: "Password errata." });
-
-      const token = jwt.sign({ id: user.id, ruolo: user.ruolo }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
-      res.json({ message: "Accesso riuscito!", token });
-    } catch (err) {
-      console.error("Errore nel login:", err);
-      res.status(500).json({ error: "Errore durante il login." });
-    }
-  });
-
+  // Avvio server
   const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
     console.log(`🚀 Server avviato su http://localhost:${PORT}`);
@@ -82,4 +49,5 @@ async function startServer() {
 
 startServer().catch(err => {
   console.error("❌ Errore durante l'avvio del server:", err);
+  process.exit(1);
 });

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API_BASE_URL from '../config';
+import API_BASE_URL from "../config";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,8 +17,12 @@ const Login = () => {
     });
 
     if (response.ok) {
-      alert("Accesso riuscito!");
-      navigate("/"); // Redirect alla Home
+      const { token } = await response.json();
+      localStorage.setItem("token", token);
+
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      if (payload.ruolo === "amministratore") navigate("/admin");
+      else navigate("/docente");
     } else {
       alert("Credenziali errate. Riprova.");
     }
@@ -28,9 +32,25 @@ const Login = () => {
     <div className="container text-center mt-5">
       <h1>🔐 Accedi</h1>
       <form className="mt-4" onSubmit={handleSubmit}>
-        <input type="email" className="form-control mb-3" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" className="form-control mb-3" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button className="btn btn-primary btn-lg" type="submit">Accedi</button>
+        <input
+          type="email"
+          className="form-control mb-3"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          className="form-control mb-3"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button className="btn btn-primary btn-lg" type="submit">
+          Accedi
+        </button>
       </form>
     </div>
   );
