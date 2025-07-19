@@ -1,6 +1,7 @@
-
+version: "3.8"
 
 services:
+
   db:
     image: mysql:8
     container_name: db
@@ -13,7 +14,7 @@ services:
       - "3306:3306"
     volumes:
       - project-root_db_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -24,6 +25,7 @@ services:
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile
     container_name: backend_container
     environment:
       DB_HOST: db
@@ -41,33 +43,16 @@ services:
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile
       args:
-        - REACT_APP_SERVER_URL=${REACT_APP_SERVER_URL}
-    env_file:
-      - ./.env
-    environment:
-      - REACT_APP_SERVER_URL=${REACT_APP_SERVER_URL}
+        REACT_APP_SERVER_URL: "/api"
     container_name: frontend_container
     ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/frontend
-      - /frontend/node_modules
-    stdin_open: true
-    tty: true
-
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx_proxy
-    ports:
       - "8080:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - backend
-      - frontend
     restart: unless-stopped
+    
 
 volumes:
   project-root_db_data:

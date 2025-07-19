@@ -1,17 +1,30 @@
+// backend/routes/docente.js
+
 const express = require("express");
-const router = express.Router();
 const { isDocente } = require("../middleware/auth");
 
 module.exports = (db) => {
-  router.get("/insegnamenti", isDocente, async (req, res) => {
-    const docId = req.user.id;
-    const [rows] = await db.query(`
-      SELECT I.id,I.nome,I.corso_id
-      FROM Insegnamento I
-      JOIN DocenteInsegnamento DI ON DI.insegnamento_id=I.id
-      WHERE DI.docente_id=?`, [docId]);
-    res.json(rows);
+  const router = express.Router();
+  router.use(isDocente);
+
+  // GET /api/docente/insegnamenti
+  router.get("/insegnamenti", async (req, res, next) => {
+    try {
+      const docId = req.user.id;
+      const [rows] = await db.query(`
+        SELECT i.id, i.nome, c.id AS corso_id, c.nome AS corsoNome
+        FROM Insegnamento i
+        JOIN CorsoDiLaurea c 
+          ON i.corso_id = c.id
+        JOIN DocenteInsegnamento di 
+          ON di.insegnamento_id = i.id
+        WHERE di.docente_id = ?
+      `, [docId]);
+      res.json(rows);
+    } catch (err) {
+      next(err);
+    }
   });
 
-  return router; 
+  return router;
 };

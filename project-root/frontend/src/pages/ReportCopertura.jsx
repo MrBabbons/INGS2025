@@ -2,35 +2,33 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import API_BASE_URL from "../config";
 
-const ReportCopertura = () => {
+export default function ReportCopertura() {
   const { corsoId } = useParams();
   const [minReq, setMinReq] = useState(0);
-  const [actual, setActual] = useState(0);
+  const [eff, setEff]       = useState(0);
+
+  const token = localStorage.getItem("token");
+  const headers = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch(`${API_BASE_URL}/report/copertura/${corsoId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    fetch(`${API_BASE_URL}/report/copertura/${corsoId}`, { headers })
       .then(r => r.json())
-      .then(data => {
-        setMinReq(data.minimo);
-        setActual(data.effettivo);
+      .then(d => {
+        setMinReq(d.minimo);
+        setEff(d.effettivo);
       });
   }, [corsoId]);
 
   return (
     <div className="container mt-5">
-      <h2>✅ Copertura Argomenti – Corso {corsoId}</h2>
+      <h2>Copertura – Corso {corsoId}</h2>
       <p>Minimo richiesto: {minReq}</p>
-      <p>Argomenti totali caricati: {actual}</p>
-      {actual < minReq ? (
-        <div className="alert alert-warning">Copertura insufficiente!</div>
+      <p>Effettivo: {eff}</p>
+      {eff < minReq ? (
+        <div className="alert alert-warning">Insufficiente</div>
       ) : (
-        <div className="alert alert-success">Copertura soddisfacente.</div>
+        <div className="alert alert-success">OK</div>
       )}
     </div>
-  );
-};
-
-export default ReportCopertura;
+);
+}

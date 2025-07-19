@@ -1,33 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Navigate } from "react-router-dom";
-import API_BASE_URL from "../config";
 
-const PrivateRoute = ({ children, requiredRole }) => {
-  const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState(null);
+export default function PrivateRoute({ children, requiredRole }) {
+  const token = localStorage.getItem("token");
+  const ruolo = localStorage.getItem("ruolo");
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    fetch(`${API_BASE_URL}/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        setRole(data.ruolo);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  if (loading) return <p>Caricamento...</p>;
-  if (!role) return <Navigate to="/login" />;
-  if (requiredRole && role !== requiredRole) return <Navigate to="/" />;
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+  if (requiredRole && ruolo !== requiredRole) {
+    return <Navigate to="/" />;
+  }
   return children;
-};
-
-export default PrivateRoute;
+}

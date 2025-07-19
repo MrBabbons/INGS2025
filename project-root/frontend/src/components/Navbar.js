@@ -1,78 +1,37 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = () => {
-  const navigate = useNavigate();
+export default function Navbar() {
   const token = localStorage.getItem("token");
-  let ruolo = null;
-
-  if (token) {
-    try {
-      ruolo = JSON.parse(atob(token.split(".")[1])).ruolo;
-    } catch {
-      ruolo = null;
-    }
-  }
+  const ruolo = localStorage.getItem("ruolo");
+  const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+    localStorage.clear();
+    navigate("/login");
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
-        <Link className="navbar-brand" to="/">
-          📖 Armonizzazione Percorsi
-        </Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className="collapse navbar-collapse" id="navbarNav">
+        <Link className="navbar-brand" to="/">ArmonizzaPercorsi</Link>
+        <div className="collapse navbar-collapse">
           <ul className="navbar-nav ms-auto">
             {!token && (
               <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/login">
-                    Login
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/register">
-                    Registrati
-                  </Link>
-                </li>
+                <li className="nav-item"><Link className="nav-link" to="/login">Login</Link></li>
+                <li className="nav-item"><Link className="nav-link" to="/register">Register</Link></li>
               </>
             )}
-
             {token && ruolo === "amministratore" && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/admin">
-                  Dashboard Admin
-                </Link>
-              </li>
+              <li className="nav-item"><Link className="nav-link" to="/admin">Admin</Link></li>
             )}
-
             {token && ruolo === "docente" && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/docente">
-                  Dashboard Docente
-                </Link>
-              </li>
+              <li className="nav-item"><Link className="nav-link" to="/docente">Docente</Link></li>
             )}
-
             {token && (
               <li className="nav-item">
-                <button
-                  onClick={logout}
-                  className="btn btn-outline-light nav-link"
-                >
+                <button className="btn btn-outline-secondary btn-sm" onClick={logout}>
                   Logout
                 </button>
               </li>
@@ -82,6 +41,4 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
-
-export default Navbar;
+}
