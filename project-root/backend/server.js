@@ -16,7 +16,7 @@ async function startServer() {
     connectionLimit:    10,
     queueLimit:         0,
   });
-  console.log("✅ Database pool creato");
+  console.log("Database pool creato");
 
   const app = express();
   app.use(cors());
@@ -39,7 +39,7 @@ async function startServer() {
   // Rotte Docente
   app.use("/api/docente", require("./routes/docente")(db));
 
-  // Rotte associazione argomenti ↔ insegnamenti
+  // Rotte associazione argomenti - insegnamenti
   app.use("/api", require("./routes/argomentiLink")(db));
 
   // Rotte report

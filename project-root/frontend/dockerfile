@@ -1,6 +1,6 @@
 # frontend/Dockerfile
 
-# 1) Build della app React
+# Build React
 FROM node:18-alpine AS build-stage
 WORKDIR /app
 
@@ -13,10 +13,10 @@ RUN npm install --silent
 COPY . .
 RUN npm run build
 
-# 2) Serve la build statica con Nginx
+# Build statica con Nginx
 FROM nginx:stable-alpine AS production-stage
 
-# Copia i file statici
+# Copia file statici
 COPY --from=build-stage /app/build /usr/share/nginx/html
 
 # Configurazione custom per SPA fallback + proxy /api

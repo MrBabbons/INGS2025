@@ -159,7 +159,7 @@ module.exports = (db) => {
     }
   });
 
-  // ─── ASSOCIAZIONE DOCENTI ↔ INSEGNAMENTI ──────────────────────────
+  // ─── ASSOCIAZIONE DOCENTI - INSEGNAMENTI ──────────────────────────
   // GET lista docenti + flag assigned
   router.get("/insegnamenti/:id/docenti", async (req, res, next) => {
     try {
@@ -183,7 +183,7 @@ module.exports = (db) => {
     }
   });
 
-  // POST sovrascrive assegnamenti docenti → insegnamento
+  // POST sovrascrive assegnamenti docenti - insegnamento
   router.post("/insegnamenti/:id/docenti", async (req, res, next) => {
     try {
       const insId = req.params.id;

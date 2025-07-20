@@ -1,4 +1,4 @@
--- 1. Crea DB
+-- 1. DB
 CREATE DATABASE IF NOT EXISTS armonizzazione_percorsi;
 USE armonizzazione_percorsi;
 
@@ -34,7 +34,7 @@ CREATE TABLE Argomento (
   UNIQUE(descrizione)
 );
 
--- 6. M:N Insegnamento ↔ Argomento 
+-- 6. M:N Insegnamento - Argomento
 CREATE TABLE InsegnamentoArgomento (
   insegnamento_id INT,
   argomento_id INT,
@@ -61,7 +61,7 @@ CREATE TABLE InsegnamentoArgomentoObb (
   FOREIGN KEY (argomento_id) REFERENCES Argomento(id) ON DELETE CASCADE
 );
 
--- 9. Docente ↔ Insegnamento
+-- 9. Docente - Insegnamento
 CREATE TABLE DocenteInsegnamento (
   docente_id INT,
   insegnamento_id INT,
@@ -70,7 +70,7 @@ CREATE TABLE DocenteInsegnamento (
   FOREIGN KEY (insegnamento_id) REFERENCES Insegnamento(id) ON DELETE CASCADE
 );
 
--- 10. CorsoDiLaurea ↔ Insegnamento (corsi che condividono insegnamenti)
+-- 10. CorsoDiLaurea - Insegnamento (corsi che condividono insegnamenti)
 CREATE TABLE CorsoDiLaureaInsegnamento (
   corso_id INT,
   insegnamento_id INT,
@@ -79,7 +79,7 @@ CREATE TABLE CorsoDiLaureaInsegnamento (
   FOREIGN KEY (insegnamento_id) REFERENCES Insegnamento(id) ON DELETE CASCADE
 );
 
--- 11. Admin incaricati ↔ Corso
+-- 11. Admin incaricati - Corso
 CREATE TABLE IncaricatoCorso (
   amministratore_id INT,
   corso_id INT,
