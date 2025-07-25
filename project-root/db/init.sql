@@ -87,3 +87,7 @@ CREATE TABLE IncaricatoCorso (
   FOREIGN KEY (amministratore_id) REFERENCES Utente(id) ON DELETE CASCADE,
   FOREIGN KEY (corso_id) REFERENCES CorsoDiLaurea(id) ON DELETE CASCADE
 );
+-- 12. Insegnamento - Anno e Semestre
+ALTER TABLE Insegnamento
+  ADD COLUMN anno    TINYINT  NULL,
+  ADD COLUMN semestre TINYINT NULL;

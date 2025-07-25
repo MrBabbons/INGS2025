@@ -12,17 +12,20 @@ import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 
 import CorsiPage from "./pages/admin/CorsiPage";
-import CoursePresidentPage from "./pages/admin/CoursePresidentPage";
+import CoursePresidentAdmin from "./pages/admin/CoursePresidentPage";
 import InsegnamentiPage from "./pages/admin/InsegnamentiPage";
 import ArgomentiPage from "./pages/admin/ArgomentiPage";
 import InsegnamentoDocentiPage from "./pages/admin/InsegnamentoDocentiPage";
 
-import DocenteDashboard from "./pages/DocenteDashboard";
 import InsegnamentoArgomenti from "./pages/InsegnamentoArgomenti";
 
 import ReportSovrapposizioni from "./pages/ReportSovrapposizioni";
 import ReportCopertura from "./pages/ReportCopertura";
-import ReportMinimal from "./pages/ReportMinimal";
+
+// pagine docente
+import DocenteDashboard from "./pages/DocenteDashboard";
+import CoursePresidentPage from "./pages/docente/CoursePresidentPage";
+import ReportMinimal from "./pages/docente/ReportMinimal";
 
 function App() {
   return (
@@ -56,7 +59,7 @@ function App() {
           path="/admin/corsi/:corsoId/docenti-president"
           element={
             <PrivateRoute requiredRole="amministratore">
-              <CoursePresidentPage />
+              <CoursePresidentAdmin />
             </PrivateRoute>
           }
         />
@@ -85,7 +88,7 @@ function App() {
           }
         />
 
-        {/* Docente */}
+        {/* Dashboard docente */}
         <Route
           path="/docente"
           element={
@@ -94,8 +97,28 @@ function App() {
             </PrivateRoute>
           }
         />
+
+        {/* Presidente di corso */}
         <Route
-          path="/insegnamenti/:id/argomenti"
+          path="/docente/corsi/:corsoId/presidente"
+          element={
+            <PrivateRoute requiredRole="docente">
+              <CoursePresidentPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/docente/corsi/:corsoId/presidente/minimizzato"
+          element={
+            <PrivateRoute requiredRole="docente">
+              <ReportMinimal />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Gestione argomenti per insegnamento */}
+        <Route
+          path="/docente/insegnamenti/:id/argomenti"
           element={
             <PrivateRoute requiredRole="docente">
               <InsegnamentoArgomenti />
@@ -103,7 +126,7 @@ function App() {
           }
         />
 
-        {/* Report */}
+        {/* Report pubblici protetti */}
         <Route
           path="/report/minimal/:corsoId"
           element={
