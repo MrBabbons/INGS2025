@@ -27,11 +27,11 @@ export default function DocenteDashboard() {
 
   return (
     <div className="container mt-5">
-      <h1>👨‍🏫 Pannello Docente</h1>
+      <h1>Pannello Docente</h1>
 
       {presCourses.length > 0 && (
         <div className="mt-4">
-          <h2>🌟 Presidente di Corso</h2>
+          <h2>Presidente di Corso</h2>
           <ul className="list-group mb-4">
             {presCourses.map((c) => (
               <li

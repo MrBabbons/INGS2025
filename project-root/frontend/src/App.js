@@ -87,6 +87,14 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/docente/presidente/:corsoId/periodi-argomenti"
+          element={
+            <PrivateRoute requiredRole="docente">
+              <CoursePresidentPage />
+            </PrivateRoute>
+          }
+        />
 
         {/* Dashboard docente */}
         <Route

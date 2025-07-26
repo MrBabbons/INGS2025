@@ -19,7 +19,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="container mt-5">
-      <h1>👤 Pannello Amministratore</h1>
+      <h1>Pannello Amministratore</h1>
 
       <div className="row mt-4">
         {[
