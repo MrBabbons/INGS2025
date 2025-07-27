@@ -43,24 +43,6 @@ CREATE TABLE InsegnamentoArgomento (
   FOREIGN KEY (argomento_id) REFERENCES Argomento(id) ON DELETE CASCADE
 );
 
--- 7. Argomenti obbligatori per corso
-CREATE TABLE ArgomentoObbligatorio (
-  corso_id INT,
-  argomento_id INT,
-  PRIMARY KEY (corso_id, argomento_id),
-  FOREIGN KEY (corso_id) REFERENCES CorsoDiLaurea(id) ON DELETE CASCADE,
-  FOREIGN KEY (argomento_id) REFERENCES Argomento(id) ON DELETE CASCADE
-);
-
--- 8. Argomenti obbligatori per insegnamento
-CREATE TABLE InsegnamentoArgomentoObb (
-  insegnamento_id INT,
-  argomento_id INT,
-  PRIMARY KEY (insegnamento_id, argomento_id),
-  FOREIGN KEY (insegnamento_id) REFERENCES Insegnamento(id) ON DELETE CASCADE,
-  FOREIGN KEY (argomento_id) REFERENCES Argomento(id) ON DELETE CASCADE
-);
-
 -- 9. Docente - Insegnamento
 CREATE TABLE DocenteInsegnamento (
   docente_id INT,

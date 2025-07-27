@@ -21,9 +21,19 @@ export default function InsegnamentiPage() {
     try {
       const [ins, cors] = await Promise.all([
         fetch(`${API_BASE_URL}/admin/insegnamenti`, { headers }).then(r => r.json()),
-        fetch(`${API_BASE_URL}/admin/corsi`, { headers }).then(r => r.json()),
+        fetch(`${API_BASE_URL}/admin/corsi`,       { headers }).then(r => r.json()),
       ]);
-      setInsegnamenti(ins);
+
+      // Arricchisco ogni insegnamento con corso_id
+      const insWithCourseId = ins.map(i => {
+        const match = cors.find(c => c.nome === i.corso);
+        return {
+          ...i,
+          corso_id: match?.id ?? ""
+        };
+      });
+
+      setInsegnamenti(insWithCourseId);
       setCorsi(cors);
       setForm(f => ({
         ...f,
@@ -48,14 +58,18 @@ export default function InsegnamentiPage() {
       return;
     }
 
-    // controllo solo dentro lo stesso corso
-    const exists = insegnamenti.some(i =>
-      i.nome.trim().toLowerCase() === nomeTrim &&
+    // 1. Trovo tutti gli insegnamenti con lo stesso nome
+    const sameName = insegnamenti.filter(i =>
+      i.nome.trim().toLowerCase() === nomeTrim
+    );
+
+    // 2. Se ne ho trovati, controllo se ce n'è uno con lo stesso corso_id
+    const conflict = sameName.some(i =>
       String(i.corso_id) === corsoId
     );
 
     setDuplicateError(
-      exists
+      conflict
         ? "Esiste già un insegnamento con questo nome per il corso selezionato."
         : ""
     );

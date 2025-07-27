@@ -1,83 +1,125 @@
-// src/pages/admin/ReportMinimal.jsx
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import API_BASE_URL from "../../config";
 
+function normalizeKey(str) {
+  return str.trim().toLowerCase();
+}
+
 export default function ReportMinimal() {
   const { corsoId } = useParams();
-  const [data, setData]       = useState([]);
+  const [grouped, setGrouped] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
-
-  const token   = localStorage.getItem("token");
-  const headers = { Authorization: `Bearer ${token}` };
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    let active = true;
+    const token = localStorage.getItem("token");
+    const headers = { Authorization: `Bearer ${token}` };
+
+    async function fetchData() {
       setLoading(true);
       try {
-        // 1) prendo tutti gli insegnamenti + argomenti
-        // 2) prendo gli argomenti obbligatori per il corso
-        const [resIns, resObb] = await Promise.all([
-          fetch(
-            `${API_BASE_URL}/docente/presidente/${corsoId}/insegnamenti`,
-            { headers }
-          ),
-          fetch(
-            `${API_BASE_URL}/admin/corsi/${corsoId}/argomenti-obbligatori`,
-            { headers }
-          ),
-        ]);
+        const res = await fetch(
+          `${API_BASE_URL}/docente/presidente/${corsoId}/insegnamenti`,
+          { headers }
+        );
+        if (!res.ok) throw new Error("Errore caricamento insegnamenti");
+        const raw = await res.json();
 
-        if (!resIns.ok) throw new Error("Errore caricamento insegnamenti");
-        if (!resObb.ok) throw new Error("Errore caricamento obbligatori");
+        // 1) Dedup degli argomenti interni a ogni insegnamento
+        const cleaned = raw.map(ins => {
+          const seen = new Set();
+          const args = (ins.argomenti || []).filter(arg => {
+            const key = normalizeKey(arg.descrizione);
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+          return { ...ins, argomenti: args };
+        });
 
-        const insegn      = await resIns.json();
-        const obbligatori = await resObb.json();
+        // 2) Ordina per anno/semestre e, se pari, obbligatori prima
+        const sorted = cleaned.slice().sort((a, b) => {
+          if (a.anno !== b.anno) return a.anno - b.anno;
+          if (a.semestre !== b.semestre) return a.semestre - b.semestre;
+          return (b.obbligatorio === true) - (a.obbligatorio === true);
+        });
 
-        // costruisco un Set di id argomenti obbligatori
-        const obblSet = new Set(obbligatori.map((a) => a.id));
+        // 3) Single-pass: minimizza e raggruppa
+        const seenTopics = new Set();
+        const temp = {};
 
-        // filtro via i soli argomenti NON obbligatori
-        const filtered = insegn.map((ins) => ({
-          ...ins,
-          argomenti: (ins.argomenti || []).filter(
-            (a) => !obblSet.has(a.id)
-          ),
-        }));
+        sorted.forEach(ins => {
+          // se obbligatorio, prendi tutti gli argomenti
+          const toShow = ins.obbligatorio
+            ? ins.argomenti
+            : ins.argomenti.filter(arg => 
+                !seenTopics.has(normalizeKey(arg.descrizione))
+              );
 
-        setData(filtered);
+          // aggiorna il set globale
+          ins.argomenti.forEach(arg =>
+            seenTopics.add(normalizeKey(arg.descrizione))
+          );
+
+          // raggruppa per anno - semestre
+          temp[ins.anno] = temp[ins.anno] || {};
+          temp[ins.anno][ins.semestre] = temp[ins.anno][ins.semestre] || [];
+          temp[ins.anno][ins.semestre].push({ ins, topics: toShow });
+        });
+
+        if (active) setGrouped(temp);
       } catch (err) {
-        setError(err.message);
+        if (active) setError(err.message);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
-    };
+    }
 
     fetchData();
+    return () => { active = false; };
   }, [corsoId]);
 
   if (loading) return <p>Caricamento…</p>;
-  if (error)   return <p style={{ color: "red" }}>Errore: {error}</p>;
+  if (error)   return <p className="text-danger">Errore: {error}</p>;
 
   return (
     <div className="container mt-5">
-      <h2>Report minimizzato corso {corsoId}</h2>
-      {data.map((ins) => (
-        <div key={ins.id} className="mb-3">
-          <strong>{ins.nome}</strong>
-          {ins.argomenti.length > 0 ? (
-            ins.argomenti.map((a) => (
-              <span key={a.id} className="badge bg-secondary ms-2">
-                {a.descrizione}
-              </span>
+      <h2>Argomenti Definitivi</h2>
+      {Object.keys(grouped)
+        .sort((a, b) => a - b)
+        .map(anno =>
+          Object.keys(grouped[anno])
+            .sort((a, b) => a - b)
+            .map(sem => (
+              <div key={`${anno}-${sem}`} className="mb-5">
+                <h3>{anno}° Anno – {sem}° Semestre</h3>
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Insegnamento</th>
+                      <th>Argomenti</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {grouped[anno][sem].map(({ ins, topics }) => (
+                      <tr key={ins.id}>
+                        <td>
+                          {ins.nome}{ins.obbligatorio && " (obbligatorio)"}
+                        </td>
+                        <td>
+                          {topics.length > 0
+                            ? topics.map(a => a.descrizione).join(", ")
+                            : <span className="text-muted">—</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             ))
-          ) : (
-            <span className="text-muted ms-2">Nessun argomento</span>
-          )}
-        </div>
-      ))}
+        )}
     </div>
   );
 }
