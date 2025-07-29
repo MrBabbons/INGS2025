@@ -24,21 +24,14 @@ export default function InsegnamentiPage() {
         fetch(`${API_BASE_URL}/admin/corsi`,       { headers }).then(r => r.json()),
       ]);
 
-      // Arricchisco ogni insegnamento con corso_id
       const insWithCourseId = ins.map(i => {
         const match = cors.find(c => c.nome === i.corso);
-        return {
-          ...i,
-          corso_id: match?.id ?? ""
-        };
+        return { ...i, corso_id: match?.id ?? "" };
       });
 
       setInsegnamenti(insWithCourseId);
       setCorsi(cors);
-      setForm(f => ({
-        ...f,
-        corso_id: cors[0]?.id || ""
-      }));
+      setForm(f => ({ ...f, corso_id: cors[0]?.id || "" }));
     } catch (err) {
       console.error("Errore nel caricamento dati:", err);
     }
@@ -58,12 +51,10 @@ export default function InsegnamentiPage() {
       return;
     }
 
-    // 1. Trovo tutti gli insegnamenti con lo stesso nome
     const sameName = insegnamenti.filter(i =>
       i.nome.trim().toLowerCase() === nomeTrim
     );
 
-    // 2. Se ne ho trovati, controllo se ce n'è uno con lo stesso corso_id
     const conflict = sameName.some(i =>
       String(i.corso_id) === corsoId
     );
@@ -118,7 +109,11 @@ export default function InsegnamentiPage() {
     <div className="container mt-4">
       <h2>Gestione Insegnamenti</h2>
 
-      <div className="row g-2 align-items-end mb-3">
+      {/*
+        align-items-start = allinea input/select/button in alto
+        mb-3            = margine sotto form
+      */}
+      <div className="row g-2 align-items-start mb-3">
         <div className="col">
           <input
             type="text"
@@ -127,9 +122,6 @@ export default function InsegnamentiPage() {
             value={form.nome}
             onChange={e => setForm({ ...form, nome: e.target.value })}
           />
-          {duplicateError && (
-            <div className="text-danger small mt-1">{duplicateError}</div>
-          )}
         </div>
 
         <div className="col">
@@ -157,7 +149,18 @@ export default function InsegnamentiPage() {
         </div>
       </div>
 
-      <div className="table-responsive">
+      {duplicateError && (
+        <div className="text-danger small mb-3">
+          {duplicateError}
+        </div>
+      )}
+
+      {/*
+        Quando c’è l’errore, aggiungiamo mt-3 per spostare la tabella
+      */}
+      <div
+        className={`table-responsive${duplicateError ? " mt-3" : ""}`}
+      >
         <table className="table align-middle">
           <thead>
             <tr>

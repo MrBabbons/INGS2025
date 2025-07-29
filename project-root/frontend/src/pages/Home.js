@@ -8,7 +8,7 @@ export default function Home() {
         Questa piattaforma ti permette di:
       </p>
       <ul>
-        <li>Gestire corsi di laurea e i loro argomenti generici</li>
+        <li>Gestire corsi di laurea e i loro insegnamenti</li>
         <li>Assegnare docenti referenti ai corsi</li>
         <li>Permettere ai docenti di selezionare gli argomenti del loro insegnamento</li>
         <li>Visualizzare report di sovrapposizioni, copertura e lista minima</li>

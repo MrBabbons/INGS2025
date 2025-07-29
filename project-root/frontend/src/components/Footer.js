@@ -25,9 +25,12 @@ export default function Footer() {
         }
       `}</style>
 
-      <footer className="bg-light text-center py-3 mt-auto">
+      <footer
+        className="text-center py-3 mt-auto"
+        style={{ backgroundColor: "#337AB7" }}
+      >
         <div className="container">
-          <span className="text-muted">
+          <span className="text-white">
             © 2025 ArmonizzaPercorsi. Tutti i diritti riservati.
           </span>
         </div>
